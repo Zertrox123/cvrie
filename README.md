@@ -1,31 +1,23 @@
-## Unsupervised part – data cleaning
+## CVRIE – Unsupervised part (patient testimonies clustering)
 
-This folder contains the code used to perform **cleaning and preprocessing** for the
-unsupervised learning task of the CVRIE project (patient testimonies clustering).
+This repository currently contains the **unsupervised** deliverables for the CVRIE project:
+- **2 notebooks** (cleaning/EDA + modeling)
+- **1 CLI script** that outputs the clustering (exit code **84** on error)
+- **exported figures** for the defense
 
-- **Language**: `Python`
-- **Main libraries**: `pandas`, `numpy`, `scikit-learn`, `matplotlib`
-- **Dataset used**: `Student_Dataset.csv` (provided with the subject)
+### Requirements (subject constraints)
+- **Allowed tools**: scikit-learn, pandas, numpy, matplotlib, Jupyter
+- **No labels** are added to the dataset
+- The hidden `color` column (e.g. `0x000000`) is used **only for visualization**, never for training
 
-The cleaning code:
+### Unsupervised folder structure
+- `unsupervised/01_data_cleaning_eda.ipynb`: parsing, cleaning, EDA + CSV export
+- `unsupervised/02_vectorization_clustering.ipynb`: TF‑IDF → LSA → clustering comparison, metrics, plots, final choice
+- `unsupervised/cluster_testimonies.py`: CLI script that produces `unsupervised/unsupervised_clusters.csv`
+- `unsupervised/DECISIONS.md`: rationale for all key choices (defense-ready)
+- `unsupervised/figures/`: exported PNG plots used in the defense
 
-- Parses the raw CSV file and **extracts three logical columns**:
-  - `id`: integer identifier
-  - `color`: optional hidden label / color code (values such as `0x000000`)
-  - `testimony_raw`: original free‑text testimony
-- Builds a cleaned text column:
-  - lower‑casing
-  - normalising quotes and whitespace
-  - removing non textual noise characters
-  - removing empty / invalid entries
-  - removing duplicate testimonies
-
-The **hidden color column is kept** so that you can later color your clusters for
-visualisation during the defense, but **it must not be used during training**.
-
-### Installation
-
-Create and activate a virtual environment, then install the dependencies:
+### Setup
 
 ```bash
 python -m venv .venv
@@ -33,20 +25,24 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Run the cleaning script
+### Run (notebooks)
+- Run `unsupervised/01_data_cleaning_eda.ipynb` first
+  - Produces `unsupervised/cleaned_unsupervised_dataset.csv`
+  - Produces EDA plots in `unsupervised/figures/`
+- Then run `unsupervised/02_vectorization_clustering.ipynb`
+  - Produces `unsupervised/unsupervised_clusters.csv`
+  - Produces modeling plots in `unsupervised/figures/`
+
+### Run (CLI clustering)
 
 From the project root:
 
 ```bash
-python unsupervised_preprocessing.py \
+.venv/bin/python unsupervised/cluster_testimonies.py \
   --input Student_Dataset.csv \
-  --output cleaned_unsupervised_dataset.csv
+  --output unsupervised/unsupervised_clusters.csv
 ```
 
-This will create `cleaned_unsupervised_dataset.csv` containing:
-
-- `id`
-- `color` (may be empty when no color code is present)
-- `testimony_raw`
-- `testimony_clean` (text ready to be vectorised for clustering)
+### Notes
+- The final frozen model choice is documented in `unsupervised/DECISIONS.md`.
 
