@@ -27,3 +27,15 @@ tres important teste 2 / 3 model et pouvoir justifier des choix etc etc
 can use dbscan without explaining
 
 cluster size balance a sortir en defense
+
+
+
+-----------------------
+
+
+word to vec 
+
+
+plus d'analyse 1er partie 
+
+stop word fait correctement 
