@@ -10,7 +10,8 @@ import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.decomposition import TruncatedSVD
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, TfidfVectorizer
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer
 
@@ -80,26 +81,43 @@ def normalise_text(text: str) -> str:
         .replace("–", "-")
         .replace("—", "-")
     )
-    cleaned = re.sub(r"[^a-z0-9\s'.,;:?!-]", " ", cleaned)
+    cleaned = re.sub(r"[^a-z0-9\s']", " ", cleaned)
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
     return cleaned
 
 
+_EXTRA_STOPS = frozenset(
+    {"just", "really", "quite", "also", "though", "maybe", "somewhat", "bit", "even", "still"}
+)
+STOP_WORDS = sorted(frozenset(ENGLISH_STOP_WORDS) | _EXTRA_STOPS)
+
+TEST_SIZE = 0.2
+RNG = 42
+
+
 def build_features(texts: list[str]) -> tuple[object, np.ndarray]:
-    # Frozen, defense-friendly parameters (see unsupervised/DECISIONS.md)
+    # Frozen, defense-friendly parameters (see unsupervised/DECISIONS.md).
+    # Fit TF-IDF vocabulary + LSA on a train split only; transform all texts (matches notebook 02).
+    idx = np.arange(len(texts))
+    train_idx, _ = train_test_split(idx, test_size=TEST_SIZE, random_state=RNG)
+    texts_train = [texts[i] for i in train_idx]
+
     tfidf = TfidfVectorizer(
-        stop_words="english",
+        stop_words=STOP_WORDS,
         ngram_range=(1, 2),
         min_df=2,
         max_df=0.90,
     )
-    X_tfidf = tfidf.fit_transform(texts)
+    tfidf.fit(texts_train)
+    X_tfidf = tfidf.transform(texts)
 
     lsa = make_pipeline(
         TruncatedSVD(n_components=100, random_state=42),
         Normalizer(copy=False),
     )
-    X_lsa = lsa.fit_transform(X_tfidf)
+    X_tfidf_train = tfidf.transform(texts_train)
+    lsa.fit(X_tfidf_train)
+    X_lsa = lsa.transform(X_tfidf)
     return (tfidf, lsa), X_lsa
 
 
