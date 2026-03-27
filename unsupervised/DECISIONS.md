@@ -3,12 +3,14 @@
 This document explains **why** we made each major choice for the unsupervised part, in a way that is easy to defend orally.
 
 ## Non‑negotiable constraints (from the subject)
+
 - **No labels**: the testimonies dataset is unlabeled; we do not create labels and we do not evaluate with hidden ground-truth.
 - **No dataset modification**: we do not add columns that would leak semantics into training.
 - **Hidden `color` column**: it is **kept only for visualization** (cluster plots colored by `color`) and is **never** used as a model input.
 - **Allowed tools**: `scikit-learn`, `pandas`, `numpy`, `matplotlib`, Jupyter.
 
 ## Decision 1 — Parsing the raw CSV line-by-line
+
 - **Decision**: Parse `Student_Dataset.csv` with Python’s `csv` reader and detect an optional `0xRRGGBB` field.
 - **Options considered**:
   - `pandas.read_csv()` directly (simple, but fails/produces shifted columns on heterogeneous rows).
@@ -18,6 +20,7 @@ This document explains **why** we made each major choice for the unsupervised pa
 - **Where**: `unsupervised/01_data_cleaning_eda.ipynb`.
 
 ## Decision 2 — Conservative text normalization (transparent cleaning)
+
 - **Decision**: Basic normalization only: lowercase, normalize common unicode punctuation, remove unusual characters, collapse whitespace.
 - **Options considered**:
   - Heavy NLP (lemmatization, external models) — not allowed / not “by the books” under the tool constraints.
@@ -27,6 +30,7 @@ This document explains **why** we made each major choice for the unsupervised pa
 - **Where**: `normalise_text()` in `unsupervised/01_data_cleaning_eda.ipynb`.
 
 ## Decision 3 — Removing exact duplicates + filtering extremely short entries
+
 - **Decision**: Drop exact duplicates on the cleaned text and remove entries shorter than a small threshold (`MIN_LEN=5` chars).
 - **Options considered**:
   - Keep everything (duplicates can overweight topics and distort clustering).
@@ -39,6 +43,7 @@ This document explains **why** we made each major choice for the unsupervised pa
 - **Where**: `unsupervised/01_data_cleaning_eda.ipynb`.
 
 ## Decision 4 — Primary representation: TF‑IDF with uni+bi-grams
+
 - **Decision**: Use `TfidfVectorizer(stop_words="english", ngram_range=(1,2), min_df=2, max_df=0.90)`.
 - **Options considered**:
   - CountVectorizer (simpler, but weights common words too heavily).
@@ -54,6 +59,7 @@ This document explains **why** we made each major choice for the unsupervised pa
 - **Where**: `unsupervised/02_vectorization_clustering.ipynb`.
 
 ## Decision 5 — Dimensionality reduction: TF‑IDF → TruncatedSVD (LSA) + normalization
+
 - **Decision**: Reduce TF‑IDF into a dense space with `TruncatedSVD(n_components=100)` then `Normalizer`.
 - **Options considered**:
   - Cluster directly in sparse TF‑IDF only.
@@ -67,6 +73,7 @@ This document explains **why** we made each major choice for the unsupervised pa
 - **Where**: `unsupervised/02_vectorization_clustering.ipynb`.
 
 ## Decision 6 — Compare multiple clustering families (not just one)
+
 - **Decision**: Try KMeans, Agglomerative (average linkage), and DBSCAN (on LSA).
 - **Why** (aligns with `notes.md` and subject expectations):
   - **KMeans**: fast, stable baseline for text features; easy to sweep k.
@@ -77,6 +84,7 @@ This document explains **why** we made each major choice for the unsupervised pa
 - **Where**: sweeps in `unsupervised/02_vectorization_clustering.ipynb`.
 
 ## Decision 7 — Evaluation without labels: multiple internal metrics + size balance + qualitative checks
+
 - **Decision**: Use a combination of:
   - **Silhouette** (sampled for speed)
   - **Calinski–Harabasz**
@@ -91,20 +99,23 @@ This document explains **why** we made each major choice for the unsupervised pa
 - **Where**: `unsupervised/02_vectorization_clustering.ipynb`.
 
 ## Decision 7b — Loss / objective (what the model optimizes)
+
 - **Decision**: Make the clustering objective explicit for the defense.
 - **KMeans objective (“loss”)**: minimize **inertia** (sum of squared distances to centroids) on the **LSA vectors**.\n  This is the quantity KMeans iteratively reduces while updating assignments/centroids.
 - **Why it matters**: it explains what “training” means for KMeans and why we compare multiple runs/parameters.
 
 ## Decision 8 — Defense visualization: 2D projection + two colorings
+
 - **Decision**: Project TF‑IDF to 2D with `TruncatedSVD(n_components=2)` and plot:
   - points colored by **cluster assignment**
-  - points colored by hidden **`color`**
+  - points colored by hidden `**color`**
 - **Why**: The subject asks to use the hidden `color` to color the plot so an examiner can visually verify coherence at a glance.
 - **Trade-offs**:
   - 2D projections can distort distances; these plots are for **visual inspection**, not training decisions.
 - **Where**: `unsupervised/02_vectorization_clustering.ipynb`.
 
 ## Final frozen choice (for defense)
+
 - **Chosen pipeline**: `TF-IDF (uni+bi-grams) → TruncatedSVD(100) + Normalizer → KMeans(k=20)`
 - **Why this one**:
   - It was the **best silhouette** among the KMeans/LSA runs in our sweep.
@@ -121,6 +132,7 @@ This document explains **why** we made each major choice for the unsupervised pa
   - Reproducible CLI output: `unsupervised/cluster_testimonies.py`
 
 ## Outputs produced
+
 - `unsupervised/cleaned_unsupervised_dataset.csv`: cleaned dataset used for modeling.
 - `unsupervised/unsupervised_clusters.csv`: cluster assignments (plus `color` for visualization only).
 
