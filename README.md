@@ -1,6 +1,26 @@
-## CVRIE – Unsupervised part (patient testimonies clustering)
+## CVRIE – Computer vision & text (Epitech)
 
-This repository currently contains the **unsupervised** deliverables for the CVRIE project:
+This repository contains **supervised** (PneumoniaMNIST) and **unsupervised** (patient testimonies clustering) deliverables for the CVRIE project.
+
+### Supervised part (PneumoniaMNIST)
+
+- **2 notebooks**: `supervised/01_eda_preprocessing.ipynb` (EDA + pre-processing rationale), `supervised/02_models_evaluation.ipynb` (model comparison, metrics, conclusions)
+- **Dataset**: place MedMNIST Pneumonia **NumPy** exports at **`pneumoniamnist/`** next to `export_pneumonia_png.py` — `train_images.npy`, `train_labels.npy`, and the same for **`val`** and **`test`**
+- **1 CLI** [`supervised/train_classify_pneumonia.py`](supervised/train_classify_pneumonia.py): trains a classifier and writes `supervised/supervised_test_predictions.csv` (exit code **84** on error)
+- **Rationale**: [`supervised/DECISIONS.md`](supervised/DECISIONS.md); figures under `supervised/figures/` after running the notebooks
+
+```bash
+.venv/bin/python supervised/train_classify_pneumonia.py \
+  --data-dir pneumoniamnist \
+  --model logistic_regression \
+  --fit-on train_val \
+  --output supervised/supervised_test_predictions.csv
+```
+
+Shared helpers: [`supervised/pneumonia_preprocessing.py`](supervised/pneumonia_preprocessing.py) (pickle-safe features), [`supervised/pneumonia_evaluation.py`](supervised/pneumonia_evaluation.py) (threshold tuning + rates). The CLI **tunes** the pneumonia probability cut-off on `val` by default (see `--no-tune-threshold` / `--threshold`).
+
+### Unsupervised part (patient testimonies)
+
 - **2 notebooks** (cleaning/EDA + modeling)
 - **1 CLI script** that outputs the clustering (exit code **84** on error)
 - **exported figures** for the defense
@@ -32,7 +52,8 @@ pip install -r requirements.txt
 ```
 
 ### Run (notebooks)
-- Run `unsupervised/01_data_cleaning_eda.ipynb` first
+- **Supervised**: run `supervised/01_eda_preprocessing.ipynb`, then `supervised/02_models_evaluation.ipynb` (kernel working directory can be repo root or `supervised/`; paths resolve automatically). Plots go to `supervised/figures/`.
+- **Unsupervised**: run `unsupervised/01_data_cleaning_eda.ipynb` first
   - Produces `unsupervised/cleaned_unsupervised_dataset.csv`
   - Produces EDA plots in `unsupervised/figures/` (including length boxplot, id vs. word count, top tokens)
 - Then run `unsupervised/02_vectorization_clustering.ipynb`
