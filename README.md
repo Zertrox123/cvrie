@@ -5,6 +5,12 @@ This repository currently contains the **unsupervised** deliverables for the CVR
 - **1 CLI script** that outputs the clustering (exit code **84** on error)
 - **exported figures** for the defense
 
+### Modeling notes (summary)
+- **Text cleaning** maps punctuation to spaces so tokens align with sklearn’s stop-word list (see `unsupervised/DECISIONS.md`).
+- **Stop words**: `sklearn.feature_extraction.text.ENGLISH_STOP_WORDS` plus a small fixed set of narrative fillers—same list in notebooks **01**, **02**, and in `cluster_testimonies.py`.
+- **TF‑IDF + LSA** are **fitted on 80%** of rows (`train_test_split`, seed **42**), then **all** rows are transformed for clustering, so hold-out texts do not influence vocabulary, IDF, or SVD.
+- **`k` for KMeans**: notebook **02** picks the best silhouette among KMeans-on-LSA runs in the sweep; the **CLI** currently uses a **fixed `n_clusters=20`** export path—align the script with the notebook’s `best_k` if you need identical labels in `unsupervised_clusters.csv`.
+
 ### Requirements (subject constraints)
 - **Allowed tools**: scikit-learn, pandas, numpy, matplotlib, Jupyter
 - **No labels** are added to the dataset
@@ -28,10 +34,10 @@ pip install -r requirements.txt
 ### Run (notebooks)
 - Run `unsupervised/01_data_cleaning_eda.ipynb` first
   - Produces `unsupervised/cleaned_unsupervised_dataset.csv`
-  - Produces EDA plots in `unsupervised/figures/`
+  - Produces EDA plots in `unsupervised/figures/` (including length boxplot, id vs. word count, top tokens)
 - Then run `unsupervised/02_vectorization_clustering.ipynb`
-  - Produces `unsupervised/unsupervised_clusters.csv`
-  - Produces modeling plots in `unsupervised/figures/`
+  - Produces `unsupervised/unsupervised_clusters.csv` at the end (save clustering output), using the notebook’s selected `best_k` from the sweep
+  - Produces modeling plots in `unsupervised/figures/` (LSA variance curve, silhouette vs. k, leaderboard, 2D projections by cluster and by hidden `color`, …)
 
 ### Run (CLI clustering)
 
@@ -43,6 +49,8 @@ From the project root:
   --output unsupervised/unsupervised_clusters.csv
 ```
 
+Running the CLI **overwrites** `unsupervised/unsupervised_clusters.csv` with **k = 20** clusters. Use the notebook export if you need labels consistent with **`best_k`** (e.g. **24** in the last documented run).
+
 ### Notes
-- The final frozen model choice is documented in `unsupervised/DECISIONS.md`.
+- Rationale, metrics, and the notebook-vs-CLI `k` distinction are in `unsupervised/DECISIONS.md`.
 
