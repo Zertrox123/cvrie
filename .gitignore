@@ -218,3 +218,7 @@ __marimo__/
 # Custom
 
 .DS_Store
+
+# Supervised: regenerated artifacts (optional to version)
+supervised/artifacts/
+supervised/supervised_test_predictions.csv
