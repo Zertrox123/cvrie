@@ -1,22 +1,27 @@
 # CVRIE (Computer Vision)
 
-Image recognition, filtering, and automated visual feature extraction.
+Pipeline de traitement d'images numériques et d'extraction automatique de caractéristiques.
 
-## Overview
+## Présentation
 
-Computer vision pipeline utilizing OpenCV and NumPy for edge detection, adaptive thresholding, and morphological image processing.
+Projet d'intelligence artificielle (G-AIA-400) axé sur la vision par ordinateur avec OpenCV et NumPy.
 
-## Getting Started
+Traitements implémentés :
+- Réduction du bruit et filtrage gaussien / médian.
+- Détection de contours (gradient de Sobel, Canny) et seuillage adaptatif.
+- Opérations morphologiques (dilatation, érosion, ouverture, fermeture).
+- Segmentation de régions d'intérêt et classification de motifs visuels.
 
-### Prerequisites
+## Prérequis
+
 - Python 3.10+
 
-### Setup & Run
+## Installation et Lancement
 
 ```bash
-# Install dependencies
+# Installer les dépendances
 pip install -r requirements.txt
 
-# Run image processing pipeline
+# Exécuter le pipeline d'analyse d'images
 python3 main.py
 ```
