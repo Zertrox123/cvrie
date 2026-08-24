@@ -1,8 +1,8 @@
 # CVRIE
 
-Pipeline de vision par ordinateur fait en Python avec OpenCV et NumPy.
+Pipeline de vision par ordinateur fait en Python avec OpenCV et NumPy
 
-Au programme : filtrage, débruitage, détection de contours (Sobel/Canny), seuillage et morphologie mathématique pour extraire des éléments sur des images.
+Au programme : filtrage, débruitage, détection de contours (Sobel/Canny), seuillage et morphologie mathématique pour extraire des éléments sur des images
 
 ## Lancement
 
